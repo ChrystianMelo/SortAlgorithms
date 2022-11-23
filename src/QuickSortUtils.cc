@@ -1,14 +1,16 @@
 #include <iostream>
+#include <tuple>
 #include "QuickSortUtils.h"
 
-namespace {
+namespace
+{
 	/**
-		\brief Troca as posições do array.
+		\brief Troca as posiï¿½ï¿½es do array.
 
-		\param p1 Posição de origem
-		\param p2 Posição destino.
+		\param p1 Posiï¿½ï¿½o de origem
+		\param p2 Posiï¿½ï¿½o destino.
 	**/
-	void swap(int* p1, int* p2)
+	void swap(int *p1, int *p2)
 	{
 		int temp = *p1;
 		*p1 = *p2;
@@ -22,114 +24,185 @@ namespace {
 		\param start Primeiro indice do array.
 		\param end Ultimo indice do array.
 	**/
-	int getMediana(int* vet, int start, int end) {
+	int getMediana(int *vet, int start, int end)
+	{
 		return vet[(end - start) / 2 + start];
 	}
 
 	/**
 		\brief Particiona o arraycom base na escolha de um pivot.
 
-		\param arr Array que será particionado.
+		\param arr Array que serï¿½ particionado.
 		\param start Primeiro indice do array.
 		\param end Ultimo indice do array.
-		\param pivot Pivô usado no particionamento, o padrão é usar o ultimo elemento do array.
+		\param pivot Pivï¿½ usado no particionamento, o padrï¿½o ï¿½ usar o ultimo elemento do array.
 
 		\return Retorna o indice do menor elemento.
 	**/
-	int partition(int arr[], int start, int end, int pivot = -1)
+	std::tuple<int, int, int> partition(int arr[], int start, int end, int pivot = -1)
 	{
+		int COMPARING_NUMBER = 0, COPIES_NUMBER = 0;
 		if (pivot == -1)
 			pivot = arr[end];
 
 		int index = (start - 1);
 
-		for (int j = start; j <= end - 1; j++) {
+		for (int j = start; j <= end - 1; j++)
+		{
 			// Verifica se um elemento menor encontrado.
-			if (arr[j] < pivot) {
+			if (arr[j] < pivot)
+			{
+				COMPARING_NUMBER++;
 				index++;
 				swap(&arr[index], &arr[j]);
+				COPIES_NUMBER++;
 			}
 		}
 
 		swap(&arr[index + 1], &arr[end]);
+		COPIES_NUMBER++;
 
-		return (index + 1);
+		return std::make_tuple(index + 1, COPIES_NUMBER, COMPARING_NUMBER);
 	}
 }
 
-void QuickSortUtils::qsortIterative(int* vet, int start, int end)
+std::pair<int, int> QuickSortUtils::qsortIterative(int *vet, int start, int end)
 {
+	int COMPARING_NUMBER = 0, COPIES_NUMBER = 0;
 	int size = end - start + 1;
-	int* pilhap = (int*)malloc(size * sizeof(int));
-	int* pilhar = (int*)malloc(size * sizeof(int));
+	int *pilhap = (int *)malloc(size * sizeof(int));
+	int *pilhar = (int *)malloc(size * sizeof(int));
 
-	pilhap[0] = start; pilhar[0] = end;
+	pilhap[0] = start;
+	pilhar[0] = end;
+	COPIES_NUMBER += 2;
 
-	for (int t = 0; t >= 0;) {
-		start = pilhap[t]; end = pilhar[t]; --t;
-		if (start < end) {
-			int j = partition(vet, start, end);
-			++t; pilhap[t] = start; pilhar[t] = j - 1;
-			++t; pilhap[t] = j + 1; pilhar[t] = end;
+	for (int t = 0; t >= 0;)
+	{
+		start = pilhap[t];
+		end = pilhar[t];
+		--t;
+		COPIES_NUMBER += 2;
+
+		if (start < end)
+		{
+			std::tuple<int, int, int> tuple = partition(vet, start, end);
+			int j = std::get<0>(tuple);
+			COPIES_NUMBER += std::get<1>(tuple);
+			COMPARING_NUMBER += std::get<2>(tuple);
+
+			++t;
+			pilhap[t] = start;
+			pilhar[t] = j - 1;
+			COPIES_NUMBER += 2;
+
+			++t;
+			pilhap[t] = j + 1;
+			pilhar[t] = end;
+			COPIES_NUMBER += 2;
 		}
+		COMPARING_NUMBER++;
 	}
+	return std::make_pair(COPIES_NUMBER, COMPARING_NUMBER);
 }
-void QuickSortUtils::qsortRecursive(int* vet, int start, int end)
+std::pair<int, int> QuickSortUtils::qsortRecursive(int *vet, int start, int end)
 {
-	if (start < end) {
-		int pi = partition(vet, start, end);
+	int COMPARING_NUMBER = 0, COPIES_NUMBER = 0;
+	if (start < end)
+	{
+		std::tuple<int, int, int> tuple = partition(vet, start, end);
+		int pi = std::get<0>(tuple);
+		COPIES_NUMBER += std::get<1>(tuple);
+		COMPARING_NUMBER += std::get<2>(tuple);
 
-		qsortRecursive(vet, start, pi - 1);
-		qsortRecursive(vet, pi + 1, end);
+		auto p1 = qsortRecursive(vet, start, pi - 1);
+		COPIES_NUMBER += p1.first;
+		COMPARING_NUMBER += p1.second;
+
+		auto p2 = qsortRecursive(vet, pi + 1, end);
+		COPIES_NUMBER += p2.first;
+		COMPARING_NUMBER += p2.second;
 	}
+	return std::make_pair(COPIES_NUMBER, COMPARING_NUMBER);
 }
 
-void QuickSortUtils::qsortMediana(int* vet, int start, int end)
+std::pair<int, int> QuickSortUtils::qsortMediana(int *vet, int start, int end)
 {
-	if (start < end) {
+	int COMPARING_NUMBER = 0, COPIES_NUMBER = 0;
+	if (start < end)
+	{
 		int mediana = getMediana(vet, start, end);
-		int pi = partition(vet, start, end, mediana);
 
-		qsortMediana(vet, start, pi - 1);
-		qsortMediana(vet, pi + 1, end);
+		std::tuple<int, int, int> tuple = partition(vet, start, end, mediana);
+		int pi = std::get<0>(tuple);
+		COPIES_NUMBER += std::get<1>(tuple);
+		COMPARING_NUMBER += std::get<2>(tuple);
+
+		auto p1 = qsortMediana(vet, start, pi - 1);
+		COPIES_NUMBER += p1.first;
+		COMPARING_NUMBER += p1.second;
+
+		auto p2 = qsortMediana(vet, pi + 1, end);
+		COPIES_NUMBER += p2.first;
+		COMPARING_NUMBER += p2.second;
 	}
+	return std::make_pair(COPIES_NUMBER, COMPARING_NUMBER);
 }
 
-void  QuickSortUtils::qsortSelection(int arr[], int start, int end, int m)
+std::pair<int, int> QuickSortUtils::qsortSelection(int arr[], int start, int end, int m)
 {
-	// If k is smaller than number of 
-	// elements in array
-	if (start < end && m <= end - start) {
-		int index = partition(arr, start, end);
+	int COMPARING_NUMBER = 0, COPIES_NUMBER = 0;
+	if (start < end && m <= end - start)
+	{
+		std::tuple<int, int, int> tuple = partition(arr, start, end);
+		int index = std::get<0>(tuple);
+		COPIES_NUMBER += std::get<1>(tuple);
+		COMPARING_NUMBER += std::get<2>(tuple);
 
-		// If position is same as k
-		if (index - start != m - 1) {
-			// If position is more, recur 
-			// for left subarray
+		if (index - start != m - 1)
+		{
+			std::pair<int, int> p1;
 			if (index - start > m - 1)
-				qsortSelection(arr, start, index - 1, m);
+				p1 = qsortSelection(arr, start, index - 1, m);
 			else
-				qsortSelection(arr, index + 1, end,
-					m - index + start - 1);
+				p1 = qsortSelection(arr, index + 1, end, m - index + start - 1);
+
+			COPIES_NUMBER += p1.first;
+			COMPARING_NUMBER += p1.second;
 		}
 	}
+	return std::make_pair(COPIES_NUMBER, COMPARING_NUMBER);
 }
 
-void QuickSortUtils::qsortEmplhaInteligente(int* vet, int start, int end)
+std::pair<int, int> QuickSortUtils::qsortEmplhaInteligente(int *vet, int start, int end)
 {
-	if (start < end) {
-		int pi = partition(vet, start, end);
+	int COMPARING_NUMBER = 0, COPIES_NUMBER = 0;
+	if (start < end)
+	{
+		std::tuple<int, int, int> tuple = partition(vet, start, end);
+		int pi = std::get<0>(tuple);
+		COPIES_NUMBER += std::get<1>(tuple);
+		COMPARING_NUMBER += std::get<2>(tuple);
 
-		qsortEmplhaInteligente(vet, start, pi - 1);
-		qsortEmplhaInteligente(vet, pi + 1, end);
+		auto p1 = qsortEmplhaInteligente(vet, start, pi - 1);
+		COPIES_NUMBER += p1.first;
+		COMPARING_NUMBER += p1.second;
+
+		auto p2 = qsortEmplhaInteligente(vet, pi + 1, end);
+		COPIES_NUMBER += p2.first;
+		COMPARING_NUMBER += p2.second;
 	}
+	return std::make_pair(COPIES_NUMBER, COMPARING_NUMBER);
 }
 
-bool QuickSortUtils::isSorted(int arr[], int start, int end) {
+bool QuickSortUtils::isSorted(int arr[], int start, int end)
+{
 	bool sorted = false;
 	int lastValue = arr[0];
-	for (int i = start; i < end; i++) {
-		if (lastValue > arr[i]) {
+	for (int i = start; i < end; i++)
+	{
+		if (lastValue > arr[i])
+		{
 			sorted = false;
 			break;
 		}
@@ -137,4 +210,3 @@ bool QuickSortUtils::isSorted(int arr[], int start, int end) {
 	}
 	return sorted;
 }
-

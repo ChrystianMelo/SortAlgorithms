@@ -1,31 +1,32 @@
 #include <iostream>
 #include "Sorting.h"
+#include "QuickSortUtils.h"
 
-namespace {
+namespace
+{
 	/**
-		\brief Troca as posições do array.
+		\brief Troca as posiï¿½ï¿½es do array.
 
-		\param p1 Posição de origem
-		\param p2 Posição destino.
+		\param p1 Posiï¿½ï¿½o de origem
+		\param p2 Posiï¿½ï¿½o destino.
 	**/
-	void swap(int* p1, int* p2);
-
+	void swap(int *p1, int *p2);
 
 	/**
-		\brief Troca as posições do array.
+		\brief Troca as posiï¿½ï¿½es do array.
 
-		\param arr		Array que será ordenado.
+		\param arr		Array que serï¿½ ordenado.
 		\param left		Primeiro indice do array.
 		\param mid		Indice do meio do array.
 		\param right	Ultimo indice do array.
 	**/
 	void merge(int arr[], int left, int mid,
-		int right);
+			   int right);
 
 	/**
 		\brief Empilha.
 
-		\param arr		Array que será ordenado.
+		\param arr		Array que serï¿½ ordenado.
 		\param size		Tamnho do array.
 		\param index	Indice do array.
 	**/
@@ -35,9 +36,11 @@ namespace {
 
 void Sorting::heapSort(int arr[], int n)
 {
-	for (int i = n / 2 - 1; i >= 0; i--) heapify(arr, n, i);
+	for (int i = n / 2 - 1; i >= 0; i--)
+		heapify(arr, n, i);
 
-	for (int i = n - 1; i >= 0; i--) {
+	for (int i = n - 1; i >= 0; i--)
+	{
 		swap(&arr[0], &arr[i]);
 		heapify(arr, i, 0);
 	}
@@ -45,7 +48,8 @@ void Sorting::heapSort(int arr[], int n)
 
 void Sorting::mergeSort(int arr[], int start, int end)
 {
-	if (start >= end) return;
+	if (start >= end)
+		return;
 
 	auto mid = start + (end - start) / 2;
 	mergeSort(arr, start, mid);
@@ -53,22 +57,26 @@ void Sorting::mergeSort(int arr[], int start, int end)
 	merge(arr, start, mid, end);
 }
 
-
-namespace {
-	void swap(int* p1, int* p2)
+void Sorting::quickSort(int arr[], int start, int end)
+{
+	QuickSortUtils::qsortIterative(arr, start, end);
+}
+namespace
+{
+	void swap(int *p1, int *p2)
 	{
 		int temp = *p1;
 		*p1 = *p2;
 		*p2 = temp;
 	}
 
-	void merge(int arr[], int  left, int  mid, int  right)
+	void merge(int arr[], int left, int mid, int right)
 	{
 		auto const subArrayOne = mid - left + 1;
 		auto const subArrayTwo = right - mid;
 
-		auto* leftArray = new int[subArrayOne];
-		auto* rightArray = new int[subArrayTwo];
+		auto *leftArray = new int[subArrayOne];
+		auto *rightArray = new int[subArrayTwo];
 
 		for (auto i = 0; i < subArrayOne; i++)
 			leftArray[i] = arr[left + i];
@@ -79,32 +87,31 @@ namespace {
 		auto indexOfSubArrayTwo = 0;
 		int indexOfMergedArray = left;
 
-		while (indexOfSubArrayOne < subArrayOne
-			&& indexOfSubArrayTwo < subArrayTwo) {
-			if (leftArray[indexOfSubArrayOne]
-				<= rightArray[indexOfSubArrayTwo]) {
-				arr[indexOfMergedArray]
-					= leftArray[indexOfSubArrayOne];
+		while (indexOfSubArrayOne < subArrayOne && indexOfSubArrayTwo < subArrayTwo)
+		{
+			if (leftArray[indexOfSubArrayOne] <= rightArray[indexOfSubArrayTwo])
+			{
+				arr[indexOfMergedArray] = leftArray[indexOfSubArrayOne];
 				indexOfSubArrayOne++;
 			}
-			else {
-				arr[indexOfMergedArray]
-					= rightArray[indexOfSubArrayTwo];
+			else
+			{
+				arr[indexOfMergedArray] = rightArray[indexOfSubArrayTwo];
 				indexOfSubArrayTwo++;
 			}
 			indexOfMergedArray++;
 		}
 
-		while (indexOfSubArrayOne < subArrayOne) {
-			arr[indexOfMergedArray]
-				= leftArray[indexOfSubArrayOne];
+		while (indexOfSubArrayOne < subArrayOne)
+		{
+			arr[indexOfMergedArray] = leftArray[indexOfSubArrayOne];
 			indexOfSubArrayOne++;
 			indexOfMergedArray++;
 		}
 
-		while (indexOfSubArrayTwo < subArrayTwo) {
-			arr[indexOfMergedArray]
-				= rightArray[indexOfSubArrayTwo];
+		while (indexOfSubArrayTwo < subArrayTwo)
+		{
+			arr[indexOfMergedArray] = rightArray[indexOfSubArrayTwo];
 			indexOfSubArrayTwo++;
 			indexOfMergedArray++;
 		}
@@ -113,17 +120,19 @@ namespace {
 		delete[] rightArray;
 	}
 
-
 	void heapify(int arr[], int size, int index)
 	{
 		int largest = index;
 		int left = 2 * index + 1;
 		int right = 2 * index + 2;
 
-		if (left < size && arr[left] > arr[largest]) largest = left;
-		if (right < size && arr[right] > arr[largest])	largest = right;
+		if (left < size && arr[left] > arr[largest])
+			largest = left;
+		if (right < size && arr[right] > arr[largest])
+			largest = right;
 
-		if (largest != index) {
+		if (largest != index)
+		{
 			swap(&arr[index], &arr[largest]);
 			heapify(arr, size, largest);
 		}
