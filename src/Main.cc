@@ -12,7 +12,11 @@
 #include <iostream>
 
 #include "msgassert.h"
-#include "memlog.h"
+
+#include "QuickSortUtils.h"
+#include "Sorting.h"
+
+//#include "memlog.h"
 
 /**
  * @brief Le as opcoes da linha de comando e inicializa variaveis
@@ -55,6 +59,23 @@ void parse_args(char **argv, int argc, std::string *inputFilename, std::string *
 }
 
 /**
+    \brief Metodo temporário para assegurar a exatidão no processo de ordenação por seleção.
+
+    \param arr		Array que será ordenado.
+    \param start	Primeiro indice do array.
+    \param end		Ultimo indice do array.
+    \param m		Tamanho m.
+**/
+void selectionSort(int arr[], int start, int end, int m) {
+    QuickSortUtils::qsortSelection(arr, start, end, m);
+       
+    if (!QuickSortUtils::isSorted(arr, start, end))
+        QuickSortUtils::qsortSelection(arr, start, end, 1);
+
+    //erroAssert(QuickSortUtils::isSorted((arr, start, end), "Não foi possivel ordenar");
+}
+
+/**
  * @brief Main
  *
  * @param argc
@@ -77,26 +98,73 @@ int main(int argc, char *argv[])
     bool accessPattern;
 
     // Le os argumentos de entrada do programa.
-    parse_args(argv, argc, &inputFilename, &outputFilename, &logFilename, &accessPattern);
+    //parse_args(argv, argc, &inputFilename, &outputFilename, &logFilename, &accessPattern);
 
     // Trata possiveis erros com as entradas.
-    erroAssert(!inputFilename.empty(), "O arquivo de entrada não é válido.");
-    erroAssert(!outputFilename.empty(), "O arquivo de saida não é válido.");
-    erroAssert(!logFilename.empty(), "O arquivo de log não é válido.");
+    //erroAssert(!inputFilename.empty(), "O arquivo de entrada não é válido.");
+    //erroAssert(!outputFilename.empty(), "O arquivo de saida não é válido.");
+    //erroAssert(!logFilename.empty(), "O arquivo de log não é válido.");
+
+    int n = 10;
+    int *vet;
+
+    vet = (int*)malloc(n * sizeof(int));
+
+    for (int i = 0; i < n; i++) vet[i] = (rand() % 100);
+
+    std::cout << "------Recursivamente----" << std::endl;
+    QuickSortUtils::qsortRecursive(vet, 0, n - 1);
+    for (int i = 0; i < n; i++)
+        std::cout << vet[i] << std::endl;
+    
+    for (int i = 0; i < n; i++) vet[i] = (rand() % 100);
+
+    std::cout << "------Mediana----" << std::endl;
+    QuickSortUtils::qsortMediana(vet, 0, n - 1);
+    for (int i = 0; i < n; i++)
+        std::cout << vet[i] << std::endl;
+
+    for (int i = 0; i < n; i++) vet[i] = (rand() % 100);
+
+    std::cout << "------Seleção----" << std::endl;
+    selectionSort(vet, 0, n - 1, 2);
+    for (int i = 0; i < n; i++)
+        std::cout << vet[i] << std::endl;
+
+    for (int i = 0; i < n; i++) vet[i] = (rand() % 100);
+
+    std::cout << "------Iteração----" << std::endl;
+    QuickSortUtils::qsortIterative(vet, 0, n - 1);
+    for (int i = 0; i < n; i++)
+        std::cout << vet[i] << std::endl;
+
+    for (int i = 0; i < n; i++) vet[i] = (rand() % 100);
+
+    std::cout << "------Merge----" << std::endl;
+    Sorting::mergeSort(vet, 0, n - 1);
+    for (int i = 0; i < n; i++)
+        std::cout << vet[i] << std::endl;
+
+    for (int i = 0; i < n; i++) vet[i] = (rand() % 100);
+
+    std::cout << "------Heap----" << std::endl;
+    Sorting::heapSort(vet,n);
+    for (int i = 0; i < n; i++)
+        std::cout << vet[i] << std::endl;
 
     // Inicia o mem log.
-    iniciaMemLog(logFilename.c_str());
+    //iniciaMemLog(logFilename.c_str());
 
-    // Define o memlog de acordo com o padrão de acesso.
+    /*/ Define o memlog de acordo com o padrão de acesso.
     if (accessPattern)
         ativaMemLog();
     else
-        desativaMemLog();
+        desativaMemLog();*/
 
     // Do something.
 
     // Conclui registro de acesso.
-    finalizaMemLog();
+    //finalizaMemLog();
 
     return 0;
 }
